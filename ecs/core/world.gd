@@ -8,7 +8,7 @@ var _next_id: int = 1
 
 var _pending_destroy: Array[int] = []
 
-var _event_listeners: Dictionary = {} #event name -> Array[{listener: Callable, scope: Object}]
+var _event_listeners: Dictionary = {} #event name -> Array[{listener: Callable, scope: Object(System?)}]
 var _event_queue: Array[Dictionary] = []
 
 var _entity_pool: Array[Entity] = []
@@ -101,6 +101,7 @@ func queue_event(event_name: String, data: Dictionary = {}) -> void:
 func on(event_name: String, listener: Callable, scope: Object) -> void:
 	if not _event_listeners.has(event_name):
 		_event_listeners[event_name] = []
+		
 	_event_listeners[event_name].append({ "listener": listener, "scope": scope })
 
 func off(event_name: String, listener: Callable) -> void:
@@ -108,6 +109,7 @@ func off(event_name: String, listener: Callable) -> void:
 		_event_listeners[event_name].erase(listener)
 		if _event_listeners[event_name].is_empty():
 			_event_listeners.erase(event_name)
+
 
 func remove_listener_by_scope(scope: Object) -> void:
 	for event_name in _event_listeners.keys():
@@ -137,7 +139,7 @@ func _process_event_queue() -> void:
 func _process(delta: float) -> void:
 	for s in _systems:
 		s.update(delta, self)
-		
+	
 	_process_event_queue()
 	_cleanup_entites()
 
@@ -152,8 +154,8 @@ func get_component_count(type_id: int) -> int:
 	return count
 
 func debug_listeners():
-	for name in _event_listeners.keys():
-		print(name, " has ", _event_listeners[name].size(), " listeners")
+	for event in _event_listeners.keys():
+		print(event, " has ", _event_listeners[name].size(), " listeners")
 
 
 func print_summary() -> void:

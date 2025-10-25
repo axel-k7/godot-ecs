@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="EntityPrefab" load_steps=9 format=3 uid="uid://cet3khw1kjquw"]
+
+[ext_resource type="Script" uid="uid://bkb0ak6h1s8w6" path="res://ecs/core/component.gd" id="1_3pyil"]
+[ext_resource type="Script" uid="uid://bukjpsxiacqy6" path="res://ecs/prefabs/entity_prefab.gd" id="2_avq0x"]
+[ext_resource type="Script" uid="uid://b4x28iy7wtwd6" path="res://ecs/components/transform_component.gd" id="2_llp02"]
+[ext_resource type="Script" uid="uid://bgg42w78ncy3o" path="res://ecs/components/velocity_component.gd" id="3_nk8oj"]
+[ext_resource type="Script" uid="uid://coox67qr5i8as" path="res://ecs/components/node_link_component.gd" id="4_plax4"]
+
+[sub_resource type="Resource" id="Resource_ui1k7"]
+script = ExtResource("2_llp02")
+metadata/_custom_type_script = "uid://b4x28iy7wtwd6"
+
+[sub_resource type="Resource" id="Resource_u0wie"]
+script = ExtResource("3_nk8oj")
+metadata/_custom_type_script = "uid://bgg42w78ncy3o"
+
+[sub_resource type="Resource" id="Resource_il7eg"]
+script = ExtResource("4_plax4")
+metadata/_custom_type_script = "uid://coox67qr5i8as"
+
+[resource]
+script = ExtResource("2_avq0x")
+components = Array[ExtResource("1_3pyil")]([SubResource("Resource_ui1k7"), SubResource("Resource_u0wie"), SubResource("Resource_il7eg")])
+metadata/_custom_type_script = "uid://bukjpsxiacqy6"
