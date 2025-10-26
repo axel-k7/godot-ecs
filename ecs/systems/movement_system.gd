@@ -6,3 +6,4 @@ func update(delta: float, world: World) -> void:
 		var transform = entity.get_component(ComponentType.Type.TRANSFORM) as TransformComponent
 		var velocity = entity.get_component(ComponentType.Type.VELOCITY) as VelocityComponent
 		transform.position += velocity.velocity * delta
+		print("movement system velocity: ", velocity.velocity)

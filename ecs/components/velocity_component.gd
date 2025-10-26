@@ -4,4 +4,4 @@ class_name VelocityComponent
 func _init():
 	type_id = ComponentType.Type.VELOCITY
 
-var velocity: Vector3
+@export var velocity: Vector3 = Vector3.ZERO

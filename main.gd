@@ -6,10 +6,7 @@ var test_prefab: EntityPrefab = preload("res://ecs/prefabs/test_prefab.tres")
 func _ready():
 	world = World.new()
 	add_child(world)
+	world.add_system(MovementSystem.new())
+	world.add_system(RenderSyncSystem.new())
 	
-	var test_character = world.spawn(test_prefab)
-	for component in test_character.components.values():
-		if component is NodeLinkComponent:
-			var scene_node: Node = preload("res://scenes/test_character.tscn").instantiate()
-			self.add_child(scene_node)
-			component.node = scene_node
+	world.spawn(test_prefab, self)

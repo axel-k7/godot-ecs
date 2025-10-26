@@ -13,10 +13,20 @@ var _event_queue: Array[Dictionary] = []
 
 var _entity_pool: Array[Entity] = []
 
-func spawn(prefab: EntityPrefab) -> Entity:
+## entities---------------------------------------------------------------------
+
+func spawn(prefab: EntityPrefab, parent: Node = get_tree().current_scene) -> Entity:
 	var e := create_entity()
+	
 	for c in prefab.components:
-		e.add_component(c.duplicate())
+		var comp := c.duplicate(true)
+		e.add_component(comp)
+		
+		if comp is NodeLinkComponent and comp.scene:
+			var instance = comp.scene.instantiate()
+			parent.add_child(instance)
+			comp.node = instance
+		
 	return e
 
 func create_entity() -> Entity:
@@ -37,6 +47,19 @@ func destroy_entity(entity: Entity) -> void:
 		_pending_destroy.append(entity.id)
 		_entity_pool.append(entity)
 
+func _cleanup_entites() -> void:
+	if _pending_destroy.is_empty():
+		return
+	for id in _pending_destroy:
+		for i in range(_entities.size() - 1, -1, -1): #loop backwards
+			if _entities[i].id == id:
+				_entities.remove_at(i)
+	_pending_destroy.clear()
+	clear_cache()
+
+
+## systems----------------------------------------------------------------------
+
 func add_system(system: System) -> void:
 	_systems.append(system)
 	_systems.sort_custom(func(a, b): return a.priority < b.priority)
@@ -45,6 +68,9 @@ func remove_system(system: System) -> void:
 	if _systems.has(system):
 		_systems.erase(system)
 		remove_listener_by_scope(system)
+
+
+## queries----------------------------------------------------------------------
 
 func _make_query_mask(types: Array[int]) -> int:
 	var mask := 0
@@ -75,18 +101,11 @@ func query_with_filter(include: Array[int], exclude: Array[int]) -> Array[Entity
 			result.append(e)
 	return result
 
-func _cleanup_entites() -> void:
-	if _pending_destroy.is_empty():
-		return
-	for id in _pending_destroy:
-		for i in range(_entities.size() - 1, -1, -1):
-			if _entities[i].id == id:
-				_entities.remove_at(i)
-	_pending_destroy.clear()
-	clear_cache()
-
 func clear_cache() -> void:
 	_query_cache.clear()
+
+
+## events-----------------------------------------------------------------------
 
 #run immediately
 func emit_event(event_name: String, data: Dictionary = {}) -> void:
@@ -110,7 +129,6 @@ func off(event_name: String, listener: Callable) -> void:
 		if _event_listeners[event_name].is_empty():
 			_event_listeners.erase(event_name)
 
-
 func remove_listener_by_scope(scope: Object) -> void:
 	for event_name in _event_listeners.keys():
 		var updated_list := []
@@ -121,7 +139,6 @@ func remove_listener_by_scope(scope: Object) -> void:
 			_event_listeners.erase(event_name)
 		else:
 			_event_listeners[event_name] = updated_list
-
 
 func _process_event_queue() -> void:
 	if _event_queue.is_empty():
@@ -136,6 +153,9 @@ func _process_event_queue() -> void:
 				
 	_event_queue.clear()
 
+
+## -----------------------------------------------------------------------------
+
 func _process(delta: float) -> void:
 	for s in _systems:
 		s.update(delta, self)
@@ -144,7 +164,7 @@ func _process(delta: float) -> void:
 	_cleanup_entites()
 
 
-##debug tools----------------------------------
+## debug tools------------------------------------------------------------------
 
 func get_component_count(type_id: int) -> int:
 	var count := 0
